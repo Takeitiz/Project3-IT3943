@@ -1,15 +1,15 @@
 server:
-  port: 8080
+  port: 8090
 spring:
   application:
-    name: "users"
+    name: "gigs"
   config:
     import: "optional:configserver:http://localhost:8071/"
   data:
     mongodb:
       host: localhost
       port: 27017
-      database: usersdb
+      database: gigsdb
       username: takeitiz
       password: takeitiz
       authentication-database: admin
@@ -42,6 +42,13 @@ eureka:
 
 info:
   app:
-    name: "users"
-    description: "Project3 Users Application"
+    name: "gigs"
+    description: "Project3 Gigs Application"
     version: "1.0.0"
+
+cloudinary:
+  cloud-name: "dwuvvf1tm"
+  api-key: "935826224131117"
+  api-secret: "k1E47y6AjRzzsyEgCpW0JjmAEX8"
+
+

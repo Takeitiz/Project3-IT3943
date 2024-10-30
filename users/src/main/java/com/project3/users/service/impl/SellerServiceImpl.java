@@ -11,6 +11,7 @@ import com.project3.users.service.ISellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -29,6 +30,7 @@ public class SellerServiceImpl implements ISellerService {
         if (optionalSeller.isPresent()) {
             throw new UserAlreadyExistsException("User already registered with given email " + seller.getEmail());
         }
+        seller.setCreatedAt(LocalDateTime.now());
         return sellerRepository.save(seller);
     }
 

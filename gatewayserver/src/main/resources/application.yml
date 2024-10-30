@@ -27,3 +27,15 @@ info:
     name: "gatewayserver"
     description: "Gateway Server Application"
     version: "1.0.0"
+
+server:
+  port: 8072
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: "http://localhost:8070/eureka/"
