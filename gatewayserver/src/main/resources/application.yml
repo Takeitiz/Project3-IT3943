@@ -39,3 +39,6 @@ eureka:
     fetchRegistry: true
     serviceUrl:
       defaultZone: "http://localhost:8070/eureka/"
+
+chat-service:
+  socket-url: "http://localhost:9001"
