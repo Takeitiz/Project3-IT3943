@@ -1,6 +1,7 @@
 package com.project3.gatewayserver.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project3.gatewayserver.dto.Message;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import jakarta.annotation.PostConstruct;
@@ -38,10 +39,6 @@ public class ChatSocketService {
                 log.info("Successfully connected to chat service");
             });
 
-            chatSocketClient.on("hello", args -> {
-                System.out.println("Hello");
-            });
-
             chatSocketClient.on(Socket.EVENT_DISCONNECT, args -> {
                 log.warn("Disconnected from chat service");
                 chatSocketClient.connect();
@@ -53,6 +50,20 @@ public class ChatSocketService {
                     ((Exception) args[0]).printStackTrace();
                 }
                 chatSocketClient.connect();
+            });
+
+            chatSocketClient.on("message received", args -> {
+                if (args != null && args[0] instanceof Message) {
+                    // add thêm phần connected từ front end và api gate way
+                    // this.io.emit("message receive", args)
+                }
+            });
+
+            chatSocketClient.on("message updated", args -> {
+                if (args != null && args[0] instanceof Message) {
+                    // add thêm phần connected từ front end và api gate way
+                    // this.io.emit("message updated", args)
+                }
             });
 
             chatSocketClient.connect();

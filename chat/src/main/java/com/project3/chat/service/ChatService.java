@@ -20,16 +20,7 @@ public class ChatService {
     @PostConstruct
     public void startServer() {
         server.start();
-        server.addConnectListener(onConnected());
         log.info("Socket.IO server started on port {}", server.getConfiguration().getPort());
-    }
-
-    private ConnectListener onConnected() {
-        return client -> {
-            String clientId = client.getSessionId().toString();
-            System.out.println("Client connected: " + clientId);
-            server.getBroadcastOperations().sendEvent("hello", clientId);
-        };
     }
 
     @PreDestroy
