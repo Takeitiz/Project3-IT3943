@@ -1,5 +1,6 @@
 package com.project3.chat.dto;
 
+import com.project3.chat.entity.Message;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -47,28 +48,10 @@ public class MessageDto {
     private Boolean hasOffer;
 
     @Valid
-    private OfferRequest offer;
+    private Message.Offer offer;
 
     private String createdAt;
 
-    @Data
-    public static class OfferRequest {
-        private String gigTitle;
-
-        private Double price;
-
-        private String description;
-
-        private Integer deliveryInDays;
-
-        private String oldDeliveryDate;
-
-        private String newDeliveryDate;
-
-        private Boolean accepted;
-
-        private Boolean cancelled;
-    }
 }
 
 
