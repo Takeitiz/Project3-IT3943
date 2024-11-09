@@ -2,6 +2,8 @@ package com.project3.gatewayserver.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project3.gatewayserver.dto.Message;
+import com.project3.gatewayserver.dto.Notification;
+import com.project3.gatewayserver.dto.Order;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import jakarta.annotation.PostConstruct;
@@ -17,10 +19,14 @@ import org.springframework.stereotype.Service;
 public class ChatSocketService {
 
     private Socket chatSocketClient;
+    private Socket orderSocketClient;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Value("${chat-service.socket-url}")
     private String chatServiceUrl;
+
+    @Value("${order-service.socket-url}")
+    private String orderServiceUrl;
 
     @PostConstruct
     public void connect() {
@@ -29,27 +35,26 @@ public class ChatSocketService {
                     .setReconnection(true)
                     .setReconnectionAttempts(5)
                     .setReconnectionDelay(1000)
-                    .setTransports(new String[]{"websocket", "polling"}) // Add this line
+                    .setTransports(new String[]{"websocket", "polling"})
                     .build();
 
-            log.info("Attempting to connect to chat service at: {}", chatServiceUrl);
+            // === Connect to Chat Service ===
+            log.info("Attempting to connect to Chat Service at: {}", chatServiceUrl);
             chatSocketClient = IO.socket(chatServiceUrl, options);
 
             chatSocketClient.on(Socket.EVENT_CONNECT, args -> {
-                log.info("Successfully connected to chat service");
+                log.info("Successfully connected to Chat Service");
             });
 
             chatSocketClient.on(Socket.EVENT_DISCONNECT, args -> {
-                log.warn("Disconnected from chat service");
-                chatSocketClient.connect();
+                log.warn("Disconnected from Chat Service");
             });
 
             chatSocketClient.on(Socket.EVENT_CONNECT_ERROR, args -> {
-                log.error("Connection error: {}", args[0]);
+                log.error("Chat Service connection error: {}", args[0]);
                 if (args[0] instanceof Exception) {
                     ((Exception) args[0]).printStackTrace();
                 }
-                chatSocketClient.connect();
             });
 
             chatSocketClient.on("message received", args -> {
@@ -68,6 +73,34 @@ public class ChatSocketService {
 
             chatSocketClient.connect();
 
+            // === Connect to Order Service ===
+            log.info("Attempting to connect to Order Service at: {}", orderServiceUrl);
+            orderSocketClient = IO.socket(orderServiceUrl, options);
+
+            orderSocketClient.on(Socket.EVENT_CONNECT, args -> {
+                log.info("Successfully connected to Order Service");
+            });
+
+            orderSocketClient.on(Socket.EVENT_DISCONNECT, args -> {
+                log.warn("Disconnected from Order Service");
+            });
+
+            orderSocketClient.on(Socket.EVENT_CONNECT_ERROR, args -> {
+                log.error("Order Service connection error: {}", args[0]);
+                if (args[0] instanceof Exception) {
+                    ((Exception) args[0]).printStackTrace();
+                }
+            });
+
+            orderSocketClient.on("order notification", args -> {
+                if (args != null && args[0] instanceof Order && args[1] instanceof Notification) {
+                    // add thêm phần connected từ front end và api gate way
+                    // this.io.emit("message updated", args)
+                }
+            });
+
+            orderSocketClient.connect();
+
         } catch (Exception e) {
             log.error("Error initializing socket connection", e);
         }
@@ -76,8 +109,14 @@ public class ChatSocketService {
     @PreDestroy
     public void disconnect() {
         if (chatSocketClient != null) {
-            log.info("Disconnecting from chat service");
+            log.info("Disconnecting from Chat Service");
             chatSocketClient.disconnect();
+            chatSocketClient.close();
+        }
+        if (orderSocketClient != null) {
+            log.info("Disconnecting from Order Service");
+            orderSocketClient.disconnect();
+            orderSocketClient.close();
         }
     }
 }

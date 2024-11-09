@@ -42,3 +42,6 @@ eureka:
 
 chat-service:
   socket-url: "http://localhost:9001"
+
+order-service:
+  socket-url: "http://localhost:9011"
