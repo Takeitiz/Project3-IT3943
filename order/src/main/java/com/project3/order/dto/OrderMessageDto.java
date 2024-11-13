@@ -3,6 +3,7 @@ package com.project3.order.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class OrderMessageDto {
@@ -19,7 +20,7 @@ public class OrderMessageDto {
     private String template;
     private String sender;
     private String offerLink;
-    private String amount;
+    private Double amount;
     private String buyerUsername;
     private String sellerUsername;
     private String title;
@@ -27,15 +28,15 @@ public class OrderMessageDto {
     private String deliveryDays;
     private String orderId;
     private String invoiceId;
-    private String orderDue;
+    private LocalDateTime orderDue;
     private String requirements;
     private String orderUrl;
-    private String originalDate;
-    private String newDate;
+    private LocalDateTime originalDate;
+    private LocalDateTime newDate;
     private String reason;
     private String subject;
     private String header;
-    private String total;
+    private Double total;
     private String message;
-    private String serviceFee;
+    private Double serviceFee;
 }

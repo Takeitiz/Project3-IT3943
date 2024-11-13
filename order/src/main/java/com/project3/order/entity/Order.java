@@ -34,6 +34,7 @@ public class Order {
 
     @Indexed
     private String orderId;
+    private String invoiceId;
     private Integer quantity;
     private Double price;
     private Double serviceFee = 0.0;
@@ -74,10 +75,10 @@ public class Order {
 
     @Data
     public static class RequestExtension {
-        private String originalDate = "";
-        private String newDate = "";
+        private LocalDateTime originalDate ;
+        private LocalDateTime newDate;
         private Integer days = 0;
-        private String reason = "";
+        private String reason;
     }
 
     @Data
