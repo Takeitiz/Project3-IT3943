@@ -1,0 +1,57 @@
+server:
+  port: 9020
+spring:
+  application:
+    name: "review"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: reviewdb
+      username: takeitiz
+      password: takeitiz
+      authentication-database: admin
+      auto-index-creation: true
+#  kafka:
+#    producer:
+#      bootstrap-servers: localhost:9092
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      properties:
+#        spring.json.type.mapping: orderMessageDto:com.project3.order.dto.OrderMessageDto
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+info:
+  app:
+    name: "order"
+    description: "Project3 Review Application"
+    version: "1.0.0"
+
+
+
