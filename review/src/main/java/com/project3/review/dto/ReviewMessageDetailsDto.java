@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 
 @Data
 public class ReviewMessageDetailsDto {
-    String gigId;
-    String reviewerId;
-    String sellerId;
-    String review;
-    Integer rating;
-    String orderId;
-    String type;
-    LocalDateTime createdAt;
+    private String gigId;
+    private String reviewerId;
+    private String sellerId;
+    private String review;
+    private Integer rating;
+    private String orderId;
+    private String type;
+    private LocalDateTime createdAt;
 }

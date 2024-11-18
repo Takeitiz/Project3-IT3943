@@ -9,12 +9,15 @@ import com.project3.order.entity.Order;
 import com.project3.order.kafka.OrderProducer;
 import com.project3.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -63,9 +66,12 @@ public class OrderService {
         emailMessageDetails.setDescription(order.getOffer().getDescription());
         emailMessageDetails.setRequirements(order.getRequirements());
         emailMessageDetails.setServiceFee(order.getServiceFee());
-        emailMessageDetails.setTotal(order.getPrice() + order.getServiceFee());
+        emailMessageDetails.setTotal(BigDecimal.valueOf(order.getPrice() + order.getServiceFee()).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        emailMessageDetails.setBuyerEmail(order.getBuyerEmail().toLowerCase());
+        emailMessageDetails.setSellerEmail(order.getSellerEmail().toLowerCase());
         emailMessageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", order.getOrderId()));
-        emailMessageDetails.setTemplate("order-placed");
+        emailMessageDetails.setTemplateName("order-placed.html");
+        emailMessageDetails.setTemplateSubject("Order Placed");
 
         orderProducer.sendOrderEmailTopic(emailMessageDetails);
 
@@ -80,7 +86,8 @@ public class OrderService {
                 .set("status", "Cancelled")
                 .set("approvedAt", LocalDateTime.now());
 
-        Order cancelOrder = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order cancelOrder = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         OrderMessageDto updateSellerInfo = new OrderMessageDto();
         updateSellerInfo.setSellerId(order.getSellerId());
@@ -107,7 +114,8 @@ public class OrderService {
                 .set("status", "Completed")
                 .set("approvedAt", LocalDateTime.now());
 
-        Order aproveOrder = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order aproveOrder = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         OrderMessageDto updateSellerInfo = new OrderMessageDto();
         updateSellerInfo.setSellerId(order.getSellerId());
@@ -125,10 +133,14 @@ public class OrderService {
         updateBuyerInfo.setPurchasedGigs(order.getPurchasedGigs());
         updateBuyerInfo.setType("purchased-gigs");
 
+        orderProducer.sendUserBuyerTopic(updateBuyerInfo);
+
         assert aproveOrder != null;
         notificationService.sendNotification(aproveOrder, aproveOrder.getSellerUsername(), "approved your order delivery.");
         return aproveOrder;
     }
+
+    // Todo: Sau them luu file len Cloudinary
 
     public Order sellerDeliverOrder(String orderId, Boolean delivered, DeliveredWorkDto deliveredWork) {
         Query query = new Query(Criteria.where("orderId").is(orderId));
@@ -138,7 +150,8 @@ public class OrderService {
                 .set("events.orderDelivered", LocalDateTime.now())
                 .push("deliveredWork", deliveredWork);
 
-        Order order = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         if (order != null) {
             OrderMessageDto messageDetails = new OrderMessageDto();
@@ -147,8 +160,11 @@ public class OrderService {
             messageDetails.setSellerUsername(order.getSellerUsername().toLowerCase());
             messageDetails.setTitle(order.getOffer().getGigTitle());
             messageDetails.setDescription(order.getOffer().getDescription());
+            messageDetails.setSellerEmail(order.getSellerEmail().toLowerCase());
+            messageDetails.setBuyerEmail(order.getBuyerEmail().toLowerCase());
             messageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", orderId));
-            messageDetails.setTemplate("order-delivered");
+            messageDetails.setTemplateName("order-delivered.html");
+            messageDetails.setTemplateSubject("Order Deliverd");
 
             orderProducer.sendOrderEmailTopic(messageDetails);
             notificationService.sendNotification(order, order.getBuyerUsername(), "delivered your order.");
@@ -165,17 +181,21 @@ public class OrderService {
                 .set("requestExtension.days", extendedDelivery.getDays())
                 .set("requestExtension.reason", extendedDelivery.getReason());
 
-        Order order = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         if (order != null) {
             OrderMessageDto messageDetails = new OrderMessageDto();
             messageDetails.setBuyerUsername(order.getBuyerUsername().toLowerCase());
             messageDetails.setSellerUsername(order.getSellerUsername().toLowerCase());
             messageDetails.setOriginalDate(order.getOffer().getOldDeliveryDate());
-            messageDetails.setNewDate(order.getOffer().getNewDeliveryDate());
-            messageDetails.setReason(order.getOffer().getReason());
+            messageDetails.setNewDate(order.getRequestExtension().getNewDate());
+            messageDetails.setReason(order.getRequestExtension().getReason());
+            messageDetails.setBuyerEmail(order.getBuyerEmail().toLowerCase());
+            messageDetails.setSellerEmail(order.getSellerEmail().toLowerCase());
             messageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", orderId));
-            messageDetails.setTemplate("order-extension");
+            messageDetails.setTemplateName("order-extension.html");
+            messageDetails.setTemplateSubject("Order Extension");
 
             orderProducer.sendOrderEmailTopic(messageDetails);
             notificationService.sendNotification(order, order.getBuyerUsername(), "requested for an order delivery date extension.");
@@ -196,7 +216,8 @@ public class OrderService {
                 .set("requestExtension.days", 0)
                 .set("requestExtension.reason", null);
 
-        Order order = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         if (order != null) {
             OrderMessageDto messageDetails = new OrderMessageDto();
@@ -206,8 +227,11 @@ public class OrderService {
             messageDetails.setHeader("Request Accepted");
             messageDetails.setType("accepted");
             messageDetails.setMessage("You can continue working on the order.");
+            messageDetails.setSellerEmail(order.getSellerEmail().toLowerCase());
+            messageDetails.setBuyerEmail(order.getBuyerEmail().toLowerCase());
             messageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", orderId));
-            messageDetails.setTemplate("order-extension-approved");
+            messageDetails.setTemplateName("order-extension-approval.html");
+            messageDetails.setTemplateSubject("Order Extension Approved");
 
             orderProducer.sendOrderEmailTopic(messageDetails);
             notificationService.sendNotification(order, order.getSellerUsername(), "approved your order delivery date extension request.");
@@ -224,17 +248,21 @@ public class OrderService {
                 .set("requestExtension.days", 0)
                 .set("requestExtension.reason", null);
 
-        Order order = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
         if (order != null) {
             OrderMessageDto messageDetails = new OrderMessageDto();
-            messageDetails.setSubject("CSorry: Your extension request was rejected");
+            messageDetails.setSubject("Sorry: Your extension request was rejected");
             messageDetails.setBuyerUsername(order.getBuyerUsername().toLowerCase());
             messageDetails.setSellerUsername(order.getSellerUsername().toLowerCase());
             messageDetails.setHeader("Request Rejected");
             messageDetails.setType("rejected");
+            messageDetails.setSellerEmail(order.getSellerEmail().toLowerCase());
+            messageDetails.setBuyerEmail(order.getBuyerEmail().toLowerCase());
             messageDetails.setMessage("You can contact the buyer for more information.");
             messageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", orderId));
-            messageDetails.setTemplate("order-extension-approved");
+            messageDetails.setTemplateName("order-extension-approval.html");
+            messageDetails.setTemplateSubject("Order Extension Rejected");
 
             orderProducer.sendOrderEmailTopic(messageDetails);
             notificationService.sendNotification(order, order.getSellerUsername(), "rejected your order delivery date extension request.");
@@ -259,7 +287,8 @@ public class OrderService {
                     .set("events.sellerReview", reviewMessageDetails.getCreatedAt());
         }
 
-        Order order = mongoTemplate.findAndModify(query, update, Order.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
 
         if (order != null) {
             notificationService.sendNotification(order, (reviewMessageDetails.getType().equals("buyer-review") ? order.getSellerUsername() : order.getBuyerUsername()),

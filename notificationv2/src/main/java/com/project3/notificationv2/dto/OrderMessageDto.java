@@ -1,11 +1,16 @@
-package com.project3.order.dto;
+package com.project3.notificationv2.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderMessageDto {
     private String sellerId;
     private String buyerId;

@@ -52,7 +52,7 @@ public class ChatController {
 
         Message savedMessage = conversationService.addMessage(message);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(message);
+                .body(savedMessage);
     }
 
     @PutMapping("/offer")

@@ -21,6 +21,15 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: orderMessageDto:com.project3.order.dto.OrderMessageDto
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: jobberReviewGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: reviewMessageDetails:com.project3.order.dto.ReviewMessageDetailsDto
 
 management:
   endpoints:
@@ -56,5 +65,9 @@ info:
 socket-server:
   host: localhost
   port: 9011
+
+stripe:
+  api:
+    key: sk_test_51ObkrCDvfqPpWGktnUV0rJKnqjw5GWK0c7nqEYqNzwDZ44PHk96WvlRCmfOTQIAjtVBRpkf57CJaPjWrK1Hb0dcZ00N7IJ177P
 
 

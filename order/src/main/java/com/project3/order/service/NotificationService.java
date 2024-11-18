@@ -7,6 +7,7 @@ import com.project3.order.entity.Order;
 import com.project3.order.repository.NotificationRepository;
 import com.project3.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,7 +31,8 @@ public class NotificationService {
     }
 
     public List<Notification> getNotificationsByUserToId(String userToId) {
-        return notificationRepository.findNotificationByUserToId(userToId);
+        Query query = new Query(Criteria.where("userTo").is(userToId));
+        return mongoTemplate.find(query, Notification.class);
     }
 
     @Transactional
@@ -38,21 +40,20 @@ public class NotificationService {
         Query query = new Query(Criteria.where("_id").is(notificationId));
         Update update = new Update().set("isRead", true);
 
-        Notification updatedNotification = mongoTemplate.findAndModify(query, update, Notification.class);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        Notification updatedNotification = mongoTemplate.findAndModify(query, update,options, Notification.class);
 
         if (updatedNotification == null) {
             throw new RuntimeException("Notification not found with id: " + notificationId);
         }
 
-        Order order = orderRepository.findByOrderId(updatedNotification.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + updatedNotification.getOrderId()));
+        Query orderQuery = new Query(Criteria.where("orderId").is(updatedNotification.getOrderId()));
+        Order order = mongoTemplate.findAndModify(orderQuery, update, Order.class);
 
         socketIOServer.getBroadcastOperations().sendEvent("order notification", order, updatedNotification);
 
         return updatedNotification;
     }
-
-    // Tạm thời chưa dùng OrderDto vì chưa viết Mapping giữa OrderDto và Order
 
     public void sendNotification(Order order, String userToId, String message) {
         Notification notification = new Notification();

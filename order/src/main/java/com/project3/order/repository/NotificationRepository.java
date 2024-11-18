@@ -11,10 +11,4 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification, String> {
 
-    @Query("{ 'userTo': ?0 }")
-    List<Notification> findNotificationByUserToId(String userToId);
-
-    @Query("{'_id': ?0}")
-    @Update("{'$set': {'isRead': true}}")
-    Notification findAndMarkAsRead(String notificationId);
 }

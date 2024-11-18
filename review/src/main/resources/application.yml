@@ -14,13 +14,13 @@ spring:
       password: takeitiz
       authentication-database: admin
       auto-index-creation: true
-#  kafka:
-#    producer:
-#      bootstrap-servers: localhost:9092
-#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-#      properties:
-#        spring.json.type.mapping: orderMessageDto:com.project3.order.dto.OrderMessageDto
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: reviewMessageDetails:com.project3.review.dto.ReviewMessageDetailsDto
 
 management:
   endpoints:

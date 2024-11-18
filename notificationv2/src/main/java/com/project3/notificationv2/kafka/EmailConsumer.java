@@ -1,9 +1,9 @@
-package com.project3.notification.kafka;
+package com.project3.notificationv2.kafka;
 
-import com.project3.notification.dto.AuthEmailMessageDto;
-import com.project3.notification.dto.EmailLocalsDto;
-import com.project3.notification.dto.OrderEmailMessageDto;
-import com.project3.notification.email.EmailService;
+import com.project3.notificationv2.dto.AuthEmailMessageDto;
+import com.project3.notificationv2.dto.EmailLocalsDto;
+import com.project3.notificationv2.dto.OrderMessageDto;
+import com.project3.notificationv2.email.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +38,7 @@ public class EmailConsumer {
     }
 
     @KafkaListener(topics = "order-email-topic")
-    public void consumeOrderEmailMessages(OrderEmailMessageDto orderMessageDto) throws MessagingException {
+    public void consumeOrderEmailMessages(OrderMessageDto orderMessageDto) throws MessagingException {
 
         EmailLocalsDto locals = EmailLocalsDto.builder()
                 .appLink(clientUrl)
@@ -68,10 +68,10 @@ public class EmailConsumer {
                 .build();
 
         if (orderMessageDto.getTemplateName().equals("order-placed.html")) {
-            emailService.sendEmail("order-placed.html", orderMessageDto.getTemplateSubject(), orderMessageDto.getReceiverEmail(), locals);
-            emailService.sendEmail("order-receipt.html", orderMessageDto.getTemplateSubject(), orderMessageDto.getReceiverEmail(), locals);
+            emailService.sendEmail("order-placed.html", orderMessageDto.getTemplateSubject(), orderMessageDto.getSellerEmail(), locals);
+            emailService.sendEmail("order-receipt.html", orderMessageDto.getTemplateSubject(), orderMessageDto.getBuyerEmail(), locals);
         } else {
-            emailService.sendEmail(orderMessageDto.getTemplateName(), orderMessageDto.getTemplateSubject(), orderMessageDto.getReceiverEmail(), locals);
+            emailService.sendEmail(orderMessageDto.getTemplateName(), orderMessageDto.getTemplateSubject(), orderMessageDto.getBuyerEmail(), locals);
         }
     }
 }

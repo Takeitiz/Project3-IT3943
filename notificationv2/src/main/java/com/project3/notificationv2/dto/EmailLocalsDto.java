@@ -1,16 +1,20 @@
-package com.project3.notification.dto;
+package com.project3.notificationv2.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class OrderEmailMessageDto {
-    private String receiverEmail;
-    private String username;
-    private String templateName;
-    private String templateSubject;
+@AllArgsConstructor
+@NoArgsConstructor
+public class EmailLocalsDto {
     private String sender;
+    private String appLink;
+    private String appIcon;
     private String offerLink;
     private Double amount;
     private String buyerUsername;
@@ -19,11 +23,11 @@ public class OrderEmailMessageDto {
     private String description;
     private String deliveryDays;
     private String orderId;
-    private String orderDue;
+    private LocalDateTime orderDue;
     private String requirements;
     private String orderUrl;
-    private String originalDate;
-    private String newDate;
+    private LocalDateTime originalDate;
+    private LocalDateTime newDate;
     private String reason;
     private String subject;
     private String header;
@@ -31,4 +35,8 @@ public class OrderEmailMessageDto {
     private String message;
     private Double serviceFee;
     private Double total;
+    private String username;
+    private String verifyLink;
+    private String resetLink;
+    private String otp;
 }
