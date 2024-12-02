@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
         <module name="gatewayserver" />
+        <module name="auth" />
         <module name="chat" />
         <module name="review" />
         <module name="configserver" />
@@ -19,13 +20,16 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="email" target="17" />
       <module name="notification" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="auth" options="-parameters" />
       <module name="chat" options="-parameters" />
       <module name="configserver" options="-parameters" />
+      <module name="email" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="gatewayserver" options="-parameters" />
       <module name="gigs" options="-parameters" />

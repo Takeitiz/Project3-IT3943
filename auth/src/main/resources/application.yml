@@ -1,0 +1,66 @@
+server:
+  port: 4002
+spring:
+  application:
+    name: "auth"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: authdb
+      username: takeitiz
+      password: takeitiz
+      authentication-database: admin
+      auto-index-creation: true
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: authBuyerMessageDetailsDto:com.project3.auth.dto.AuthBuyerMessageDetailsDto,authEmailMessageDto:com.project3.auth.dto.AuthEmailMessageDto
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+info:
+  app:
+    name: "auth"
+    description: "Project3 Auth Application"
+    version: "1.0.0"
+
+jwt:
+  secret: 66b0432cb48f3c89a4b2f3bf094c80fc0f95742cd405c9a65e48ab33e190f9f20c1be03926cd721adbc744004e19fbb2b6fb9176c63ff33454131cce37899698d7633611ebaf87cf38c203f62402aa1675b2630ee8a933310375175ec25d05b8c2c62ae330232a4fd1acb93e9472c332ced104a14176f7cc42eddcc26b05e2136b5ff719cdd062170b27e7c91538a7b20a4de96134346093e14736b244a536f5b2c761bb59d7f9cb5e5ed4745ea4e3ba80dd7d49d7eb656000de62b05316c288957c51caa8e8b13ac0487990d199b3976d6265118a4aeb59532ed9921885455893007250e90baa5083d8296dc1c65569da037745d033da0debac64d09d649283
+  expiration: 3600000
+
+cloudinary:
+  cloud-name: "dwuvvf1tm"
+  api-key: "935826224131117"
+  api-secret: "k1E47y6AjRzzsyEgCpW0JjmAEX8"
+
+

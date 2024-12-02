@@ -8,7 +8,7 @@ eureka:
       defaultZone: http://localhost:8070/eureka/
 
 server:
-  port: 9030
+  port: 4001
 spring:
   application:
     name: "notificationv2"

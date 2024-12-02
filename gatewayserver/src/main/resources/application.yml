@@ -9,6 +9,11 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      routes:
+        - id: auth
+          uri: lb://auth
+          predicates:
+            - Path=/api/v1/auth/**
 
 management:
   endpoints:
@@ -29,7 +34,7 @@ info:
     version: "1.0.0"
 
 server:
-  port: 8072
+  port: 4000
 
 eureka:
   instance:
