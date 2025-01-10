@@ -46,6 +46,15 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
+        order.setCountExtension(0);
+        order.setBuyerReview(Order.Review.builder()
+                        .review("")
+                        .rating(0)
+                        .build());
+        order.setSellerReview(Order.Review.builder()
+                .review("")
+                .rating(0)
+                .build());
         Order savedOrder = orderRepository.save(order);
 
         OrderMessageDto messageDetails = new OrderMessageDto();
@@ -84,7 +93,7 @@ public class OrderService {
         Update update = new Update()
                 .set("cancelled", true)
                 .set("status", "Cancelled")
-                .set("approvedAt", LocalDateTime.now());
+                .set("approvedAt", LocalDateTime.now().toString());
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
         Order cancelOrder = mongoTemplate.findAndModify(query, update, options, Order.class);
@@ -112,7 +121,7 @@ public class OrderService {
         Update update = new Update()
                 .set("approved", true)
                 .set("status", "Completed")
-                .set("approvedAt", LocalDateTime.now());
+                .set("approvedAt", LocalDateTime.now().toString());
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
         Order aproveOrder = mongoTemplate.findAndModify(query, update, options, Order.class);
@@ -140,14 +149,12 @@ public class OrderService {
         return aproveOrder;
     }
 
-    // Todo: Sau them luu file len Cloudinary
-
     public Order sellerDeliverOrder(String orderId, Boolean delivered, DeliveredWorkDto deliveredWork) {
         Query query = new Query(Criteria.where("orderId").is(orderId));
         Update update = new Update()
                 .set("delivered", delivered)
                 .set("status", "Delivered")
-                .set("events.orderDelivered", LocalDateTime.now())
+                .set("events.orderDelivered", deliveredWork.getOrderDelivered())
                 .push("deliveredWork", deliveredWork);
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
@@ -175,11 +182,17 @@ public class OrderService {
 
     public Order requestDeliveryExtension(String orderId, ExtendedDeliveryDto extendedDelivery) {
         Query query = new Query(Criteria.where("orderId").is(orderId));
+        Order existingOrder = mongoTemplate.findOne(query, Order.class);
+        if (!existingOrder.getOffer().getNewDeliveryDate().equals(extendedDelivery.getOriginalDate())) {
+            throw new RuntimeException("Date not right");
+        }
+
         Update update = new Update()
                 .set("requestExtension.originalDate", extendedDelivery.getOriginalDate())
                 .set("requestExtension.newDate", extendedDelivery.getNewDate())
                 .set("requestExtension.days", extendedDelivery.getDays())
-                .set("requestExtension.reason", extendedDelivery.getReason());
+                .set("requestExtension.reason", extendedDelivery.getReason())
+                .inc("countExtension", 1);
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
         Order order = mongoTemplate.findAndModify(query, update, options, Order.class);
@@ -240,7 +253,7 @@ public class OrderService {
         return order;
     }
 
-    public Order rejectDeliveryDate(String orderId) {
+    public Order rejectDeliveryDate(String orderId, String declineReason) {
         Query query = new Query(Criteria.where("orderId").is(orderId));
         Update update = new Update()
                 .set("requestExtension.originalDate", null)
@@ -263,6 +276,7 @@ public class OrderService {
             messageDetails.setOrderUrl(String.format("http://localhost:3000/orders/%s/activities", orderId));
             messageDetails.setTemplateName("order-extension-approval.html");
             messageDetails.setTemplateSubject("Order Extension Rejected");
+            messageDetails.setDeclineReason(declineReason);
 
             orderProducer.sendOrderEmailTopic(messageDetails);
             notificationService.sendNotification(order, order.getSellerUsername(), "rejected your order delivery date extension request.");

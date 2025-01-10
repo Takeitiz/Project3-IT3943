@@ -12,4 +12,8 @@ public class KafkaReviewTopicConfig {
     public NewTopic jobberReviewTopic() {
         return TopicBuilder.name("jobber-review-topic").build();
     }
+    @Bean
+    public NewTopic jobberReviewUserTopic() {
+        return TopicBuilder.name("jobber-review-user-topic").build();
+    }
 }

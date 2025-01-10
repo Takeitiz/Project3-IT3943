@@ -1,10 +1,23 @@
 import { FC, ReactElement, useState } from 'react';
-import { categories, replaceSpacesWithDash } from '../../../shared/utils/utils.service.ts';
+import { useGetAuthGigsByCategoryQuery } from 'src/features/auth/services/auth.service';
+import { ISellerGig } from 'src/features/gigs/interfaces/gig.interface';
+import TopGigsView from 'src/shared/gigs/TopGigsView';
+import { categories, lowerCase, replaceAmpersandAndDashWithSpace, replaceSpacesWithDash } from 'src/shared/utils/utils.service';
 import { v4 as uuidv4 } from 'uuid';
 
 const GigTabs: FC = (): ReactElement => {
   const [activeTab, setActiveTab] = useState<string>('Graphics & Design');
-  const categoryGigs = [];
+  const queryType = `query=${replaceAmpersandAndDashWithSpace(`${lowerCase(activeTab)}`)}`;
+  const { data, isSuccess } = useGetAuthGigsByCategoryQuery({
+    query: `${queryType}`,
+    from: '0',
+    size: '10',
+    type: 'forward'
+  });
+  let categoryGigs: ISellerGig[] = [];
+  if (isSuccess) {
+    categoryGigs = data.gigs as ISellerGig[];
+  }
 
   return (
     <div className="relative m-auto mt-8 w-screen px-6 xl:container md:px-12 lg:px-6">
@@ -14,8 +27,7 @@ const GigTabs: FC = (): ReactElement => {
           <h4>Choose from a broad selection of services from expert freelancers for your next project.</h4>
         </div>
         <div className="mt-6">
-          <ul
-            className="lg:flex lg:justify-between gap-5 overflow-x-auto scroll-smooth whitespace-nowrap relative inline-block">
+          <ul className="lg:flex lg:justify-between gap-5 overflow-x-auto scroll-smooth whitespace-nowrap relative inline-block">
             {categories().map((category: string) => (
               <li
                 key={uuidv4()}
@@ -36,11 +48,10 @@ const GigTabs: FC = (): ReactElement => {
               >
                 Explore
               </a>
-              {/*<TopGigsView gigs={categoryGigs} width="w-72" type="index" />*/}
+              <TopGigsView gigs={categoryGigs} width="w-72" type="index" />
             </>
           ) : (
-            <div className="flex h-96 items-center justify-center text-lg">Information not available at the
-              moment.</div>
+            <div className="flex h-96 items-center justify-center text-lg">Information not available at the moment.</div>
           )}
         </div>
       </div>

@@ -1,6 +1,8 @@
 package com.project3.users.service.impl;
 
 import com.github.javafaker.Faker;
+import com.project3.users.dto.OrderMessageDto;
+import com.project3.users.dto.ReviewMessageDetailsDto;
 import com.project3.users.entity.Buyer;
 import com.project3.users.entity.Seller;
 import com.project3.users.exception.ResourceNotFoundException;
@@ -9,6 +11,14 @@ import com.project3.users.repository.BuyerRepository;
 import com.project3.users.repository.SellerRepository;
 import com.project3.users.service.ISellerService;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,46 +26,55 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class SellerServiceImpl implements ISellerService {
+public class SellerServiceImpl {
 
     private final SellerRepository sellerRepository;
-
-    private final BuyerRepository buyerRepository;
-
     private final Faker faker = new Faker();
+    private final MongoTemplate mongoTemplate;
+    private final BuyerServiceImpl buyerService;
+    private final BuyerServiceImpl buyerServiceImpl;
 
-    @Override
-    public Seller createSeller(Seller seller) {
-        Optional<Seller> optionalSeller = sellerRepository.findByEmail(seller.getEmail());
-        if (optionalSeller.isPresent()) {
-            throw new UserAlreadyExistsException("User already registered with given email " + seller.getEmail());
-        }
-        seller.setCreatedAt(LocalDateTime.now());
-        return sellerRepository.save(seller);
+    public Seller findSellerById(String sellerId) {
+        Query query = new Query(Criteria.where("_id").is(sellerId));
+        return mongoTemplate.findOne(query, Seller.class);
     }
 
-    @Override
-    public Seller findSellerById(String id) {
-        return sellerRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Seller", "sellerId", id)
-        );
-    }
-
-    @Override
     public Seller findSellerByUsername(String username) {
-        return sellerRepository.findByUsername(username).orElseThrow(
-                () -> new ResourceNotFoundException("Seller", "username", username)
+        Query query = new Query(Criteria.where("username").is(username));
+        return mongoTemplate.findOne(query, Seller.class);
+    }
+
+    public Seller getSellerByEmail(String email) {
+        Query query = new Query(Criteria.where("email").is(email));
+        return mongoTemplate.findOne(query, Seller.class);
+    }
+
+    public List<Seller> getRandomSellers(int count) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.sample(count)
         );
+
+        AggregationResults<Seller> results = mongoTemplate.aggregate(
+                aggregation,
+                "sellers",
+                Seller.class
+        );
+
+        return results.getMappedResults();
     }
 
-    @Override
-    public List<Seller> getRandomSellers(int size) {
-        return sellerRepository.findRandomSellers(size);
+    public Seller createSeller(Seller seller) {
+        seller.setCreatedAt(LocalDateTime.now());
+        Seller createdSeller = sellerRepository.save(seller);
+        if (createdSeller.getEmail() != null) {
+            buyerService.updateBuyerIsSellerProp(createdSeller.getEmail());
+        }
+        return createdSeller;
     }
 
-    @Override
+
     public void seed(int count) {
-        List<Buyer> buyers = buyerRepository.findRandomBuyers(count);
+        List<Buyer> buyers = buyerServiceImpl.getRandomBuyers(count);
         for (Buyer buyer : buyers) {
             if (sellerRepository.findByEmail(buyer.getEmail()).isPresent()) {
                 continue;
@@ -65,51 +84,82 @@ public class SellerServiceImpl implements ISellerService {
         }
     }
 
-    @Override
-    public Seller updateSeller(String sellerId, Seller updatedSeller) {
-        Seller existingSeller = findSellerById(sellerId);
+    public Seller updateSeller(String sellerId, Seller sellerData) {
+        Query query = new Query(Criteria.where("_id").is(sellerId));
+        Update update = new Update()
+                .set("profilePublicId", sellerData.getProfilePublicId())
+                .set("fullName", sellerData.getFullName())
+                .set("profilePicture", sellerData.getProfilePicture())
+                .set("description", sellerData.getDescription())
+                .set("country", sellerData.getCountry())
+                .set("skills", sellerData.getSkills())
+                .set("oneliner", sellerData.getOneliner())
+                .set("languages", sellerData.getLanguages())
+                .set("responseTime", sellerData.getResponseTime())
+                .set("experience", sellerData.getExperience())
+                .set("education", sellerData.getEducation())
+                .set("socialLinks", sellerData.getSocialLinks())
+                .set("certificates", sellerData.getCertificates());
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+        return mongoTemplate.findAndModify(query, update, options, Seller.class);
+    }
 
-        if (updatedSeller.getProfilePublicId() != null) {
-            existingSeller.setProfilePublicId(updatedSeller.getProfilePublicId());
-        }
-        if (updatedSeller.getFullname() != null) {
-            existingSeller.setFullname(updatedSeller.getFullname());
-        }
-        if (updatedSeller.getProfilePicture() != null) {
-            existingSeller.setProfilePicture(updatedSeller.getProfilePicture());
-        }
-        if (updatedSeller.getDescription() != null) {
-            existingSeller.setDescription(updatedSeller.getDescription());
-        }
-        if (updatedSeller.getOneliner() != null) {
-            existingSeller.setOneliner(updatedSeller.getOneliner());
-        }
-        if (updatedSeller.getCountry() != null) {
-            existingSeller.setCountry(updatedSeller.getCountry());
-        }
-        if (updatedSeller.getSkills() != null) {
-            existingSeller.setSkills(updatedSeller.getSkills());
-        }
-        if (updatedSeller.getLanguages() != null) {
-            existingSeller.setLanguages(updatedSeller.getLanguages());
-        }
-        if (updatedSeller.getResponseTime() != null) {
-            existingSeller.setResponseTime(updatedSeller.getResponseTime());
-        }
-        if (updatedSeller.getExperience() != null) {
-            existingSeller.setExperience(updatedSeller.getExperience());
-        }
-        if (updatedSeller.getEducation() != null) {
-            existingSeller.setEducation(updatedSeller.getEducation());
-        }
-        if (updatedSeller.getSocialLinks() != null) {
-            existingSeller.setSocialLinks(updatedSeller.getSocialLinks());
-        }
-        if (updatedSeller.getCertificates() != null) {
-            existingSeller.setCertificates(updatedSeller.getCertificates());
+    public void updateTotalGigsCount(String sellerId, int count) {
+        Query query = new Query(Criteria.where("_id").is(sellerId));
+        Update update = new Update().inc("totalGigs", count);
+        mongoTemplate.updateFirst(query, update, Seller.class);
+    }
+
+    public void updateSellerOngoingJobsProp(String sellerId, int ongoingJobs) {
+        Query query = new Query(Criteria.where("_id").is(sellerId));
+        Update update = new Update().inc("ongoingJobs", ongoingJobs);
+        mongoTemplate.updateFirst(query, update, Seller.class);
+    }
+
+    public void updateSellerCancelledJobsProp(String sellerId) {
+        Query query = new Query(Criteria.where("_id").is(sellerId));
+        Update update = new Update()
+                .inc("ongoingJobs", -1)
+                .inc("cancelledJobs", 1);
+        mongoTemplate.updateFirst(query, update, Seller.class);
+    }
+
+    public void updateSellerCompletedJobsProp(OrderMessageDto data) {
+        Query query = new Query(Criteria.where("_id").is(data.getSellerId()));
+
+        Update update = new Update()
+                .inc("ongoingJobs", data.getOngoingJobs())
+                .inc("completedJobs", data.getCompletedJobs())
+                .inc("totalEarnings", data.getTotalEarnings())
+                .set("recentDelivery", data.getRecentDelivery());
+
+        mongoTemplate.updateFirst(query, update, Seller.class);
+    }
+
+    public void updateSellerReview(ReviewMessageDetailsDto data) {
+
+        Map<Integer, String> ratingTypes = Map.of(
+                1, "one",
+                2, "two",
+                3, "three",
+                4, "four",
+                5, "five"
+        );
+
+        String ratingKey = ratingTypes.get(data.getRating());
+        if (ratingKey == null) {
+            throw new IllegalArgumentException("Invalid rating value: " + data.getRating());
         }
 
-        return sellerRepository.save(existingSeller);
+        Query query = new Query(Criteria.where("_id").is(data.getSellerId()));
+
+        Update update = new Update()
+                .inc("ratingsCount", 1)
+                .inc("ratingSum", data.getRating())
+                .inc("ratingCategories." + ratingKey + ".value", data.getRating())
+                .inc("ratingCategories." + ratingKey + ".count", 1);
+
+        mongoTemplate.updateFirst(query, update, Seller.class);
     }
 
     private Seller createSellerFromBuyer(Buyer buyer) {
@@ -120,7 +170,7 @@ public class SellerServiceImpl implements ISellerService {
 
         Seller seller = new Seller();
         seller.setProfilePublicId(UUID.randomUUID().toString());
-        seller.setFullname(faker.name().fullName());
+        seller.setFullName(faker.name().fullName());
         seller.setUsername(buyer.getUsername());
         seller.setEmail(buyer.getEmail());
         seller.setCountry(faker.address().country());
@@ -181,7 +231,7 @@ public class SellerServiceImpl implements ISellerService {
             experience.setTitle(faker.job().title());
             experience.setStartDate(faker.options().option("2020", "2021", "2022", "2023", "2024", "2025"));
             experience.setEndDate(endYear);
-            experience.setDescription(faker.lorem().sentence().substring(0, 100));
+            experience.setDescription(faker.lorem().sentence(100));
             experience.setCurrentlyWorkingHere("Present".equals(endYear));
             experiences.add(experience);
         }

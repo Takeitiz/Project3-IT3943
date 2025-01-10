@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 4003
 spring:
   application:
     name: "users"
@@ -14,6 +14,22 @@ spring:
       password: takeitiz
       authentication-database: admin
       auto-index-creation: true
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: reviewMessageDetailsDto:com.project3.users.dto.ReviewMessageDetailsDto,seedMessageDto:com.project3.users.dto.SeedMessageDto
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: authGroup, gigGroup, orderGroup, reviewGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: authBuyerMessageDetailsDto:com.project3.users.dto.AuthBuyerMessageDetailsDto,updateGigCountMessageDto:com.project3.users.dto.UpdateGigCountMessageDto,orderMessageDto:com.project3.users.dto.OrderMessageDto,reviewMessageDetails:com.project3.users.dto.ReviewMessageDetailsDto
 
 management:
   endpoints:

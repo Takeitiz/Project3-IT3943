@@ -14,6 +14,34 @@ spring:
           uri: lb://auth
           predicates:
             - Path=/api/v1/auth/**
+        - id: users-buyer
+          uri: lb://users
+          predicates:
+            - Path=/api/v1/buyer/**
+        - id: users-seller
+          uri: lb://users
+          predicates:
+            - Path=/api/v1/seller/**
+        - id: gig
+          uri: lb://gigs
+          predicates:
+            - Path=/api/v1/gig/**
+        - id: chat
+          uri: lb://chat
+          predicates:
+            - Path=/api/v1/message/**
+        - id: order
+          uri: lb://order
+          predicates:
+            - Path=/api/v1/order/**
+        - id: review
+          uri: lb://review
+          predicates:
+            - Path=/api/v1/review/**
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 management:
   endpoints:
@@ -36,6 +64,10 @@ info:
 server:
   port: 4000
 
+socket-server:
+  host: localhost
+  port: 3999
+
 eureka:
   instance:
     preferIpAddress: true
@@ -46,7 +78,7 @@ eureka:
       defaultZone: "http://localhost:8070/eureka/"
 
 chat-service:
-  socket-url: "http://localhost:9001"
+  socket-url: "http://localhost:4006"
 
 order-service:
-  socket-url: "http://localhost:9011"
+  socket-url: "http://localhost:4008"

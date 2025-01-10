@@ -6,9 +6,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class ExtendedDeliveryDto {
-    LocalDateTime originalDate;
-    LocalDateTime newDate;
-    Integer days;
-    String reason;
-    LocalDateTime deliveryDateUpdate;
+    private String originalDate;
+    private String newDate;
+    private Integer days;
+    private String reason;
+    private String deliveryDateUpdate;
+    private String declineReason;
 }

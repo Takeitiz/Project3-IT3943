@@ -9,28 +9,24 @@ import java.time.LocalDateTime;
 public class Message {
 
     private String id;
-
     private String conversationId;
-
     private String senderUsername;
-
     private String receiverUsername;
-
     private String senderPicture;
     private String receiverPicture;
-    private String body = "";
-    private String file = "";
-    private String fileType = "";
-    private String fileSize = "";
-    private String fileName = "";
-    private String gigId = "";
+    private Boolean hasConversationId;
+    private String body;
+    private String file;
+    private String fileType;
+    private String fileSize;
+    private String fileName;
+    private String gigId;
     private String buyerId;
     private String sellerId;
-    private boolean isRead = false;
-    private boolean hasOffer = false;
-    private Offer offer = new Offer();
-
-    private LocalDateTime createdAt;
+    private boolean isRead;
+    private boolean hasOffer;
+    private Offer offer;
+    private String createdAt;
 
     @Data
     public static class Offer {

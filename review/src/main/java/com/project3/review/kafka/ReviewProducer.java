@@ -19,6 +19,20 @@ public class ReviewProducer {
                 .withPayload(reviewMessageDetails)
                 .setHeader(KafkaHeaders.TOPIC, "jobber-review-topic")
                 .build();
+        Message<ReviewMessageDetailsDto> messageUser = MessageBuilder
+                .withPayload(reviewMessageDetails)
+                .setHeader(KafkaHeaders.TOPIC, "jobber-review-user-topic")
+                .build();
+
+        kafkaTemplate.send(message);
+        kafkaTemplate.send(messageUser);
+    }
+
+    public void sendJobberReviewUserTopic(ReviewMessageDetailsDto reviewMessageDetails) {
+        Message<ReviewMessageDetailsDto> message = MessageBuilder
+                .withPayload(reviewMessageDetails)
+                .setHeader(KafkaHeaders.TOPIC, "jobber-review-user-topic")
+                .build();
 
         kafkaTemplate.send(message);
     }

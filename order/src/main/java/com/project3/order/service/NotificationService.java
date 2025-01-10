@@ -1,7 +1,6 @@
 package com.project3.order.service;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import com.project3.order.dto.OrderDto;
 import com.project3.order.entity.Notification;
 import com.project3.order.entity.Order;
 import com.project3.order.repository.NotificationRepository;
@@ -22,7 +21,6 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final OrderRepository orderRepository;
     private final SocketIOServer socketIOServer;
     private final MongoTemplate mongoTemplate;
 
@@ -47,8 +45,8 @@ public class NotificationService {
             throw new RuntimeException("Notification not found with id: " + notificationId);
         }
 
-        Query orderQuery = new Query(Criteria.where("orderId").is(updatedNotification.getOrderId()));
-        Order order = mongoTemplate.findAndModify(orderQuery, update, Order.class);
+        query = new Query(Criteria.where("orderId").is(updatedNotification.getOrderId()));
+        Order order = mongoTemplate.findOne(query, Order.class);
 
         socketIOServer.getBroadcastOperations().sendEvent("order notification", order, updatedNotification);
 

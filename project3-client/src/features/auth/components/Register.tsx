@@ -16,6 +16,8 @@ import { IResponse } from '../../../shared/shared.interface.ts';
 import { useAppDispatch } from '../../../store/store.ts';
 import { addAuthUser } from '../reducers/auth.reducer.ts';
 import { updateLogout } from '../reducers/logout.reducer.ts';
+import { updateHeader } from '../../../shared/header/reducers/header.reducer.ts';
+import { updateCategoryContainer } from '../../../shared/header/reducers/category.reducer.ts';
 
 const RegisterModal: FC<IModalBgProps> = ({ onClose, onToggle }): ReactElement => {
   const [step, setStep] = useState<number>(1);
@@ -28,6 +30,7 @@ const RegisterModal: FC<IModalBgProps> = ({ onClose, onToggle }): ReactElement =
   const [userInfo, setUserInfo] = useState<ISignUpPayload>({
     username: '',
     password: '',
+    repassword: '',
     email: '',
     country: '',
     profilePicture: '',
@@ -55,16 +58,28 @@ const RegisterModal: FC<IModalBgProps> = ({ onClose, onToggle }): ReactElement =
 
   const onRegisterUser = async (): Promise<void> => {
     try {
+      if (userInfo.password !== userInfo.repassword) {
+        setAlertMessage('Passwords do not match');
+        return;
+      }
+
       const isValid: boolean = await schemaValidation();
       if (isValid) {
-        // console.log(userInfo);
-        const result: IResponse = await signUp(userInfo).unwrap();
-        console.log(result);
+        const signUpPayload = {
+          username: userInfo.username,
+          password: userInfo.password,
+          email: userInfo.email,
+          country: userInfo.country,
+          profilePicture: userInfo.profilePicture,
+          browserName: userInfo.browserName,
+          deviceType: userInfo.deviceType
+        };
+        const result: IResponse = await signUp(signUpPayload).unwrap();
         setAlertMessage('');
         dispatch(addAuthUser({ authInfo: result.user }));
         dispatch(updateLogout(false));
-        // dispatch(updateHeader('home'));
-        // dispatch(updateCategoryContainer(true));
+        dispatch(updateHeader('home'));
+        dispatch(updateCategoryContainer(true));
         saveToSessionStorage(JSON.stringify(true), JSON.stringify(result.user?.username));
       }
     } catch (error) {
@@ -179,10 +194,41 @@ const RegisterModal: FC<IModalBgProps> = ({ onClose, onToggle }): ReactElement =
                 />
               </div>
             </div>
+
+            <div>
+              <label htmlFor="repassword" className="text-sm font-bold leading-tight tracking-normal text-gray-800">
+                Confirm Password
+              </label>
+              <div className="relative mb-5 mt-2">
+                <div className="absolute right-0 flex h-full cursor-pointer items-center pr-3 text-gray-600">
+                  {passwordType === 'password' ? (
+                    <FaEyeSlash onClick={() => setPasswordType('text')}
+                                className="icon icon-tabler icon-tabler-info-circle" />
+                  ) : (
+                    <FaEye onClick={() => setPasswordType('password')}
+                           className="icon icon-tabler icon-tabler-info-circle" />
+                  )}
+                </div>
+                <TextInput
+                  id="repassword"
+                  name="repassword"
+                  type={passwordType}
+                  value={userInfo.repassword}
+                  className="flex h-10 w-full items-center rounded border border-gray-300 pl-3 text-sm font-normal text-gray-600 focus:border focus:border-sky-500/50 focus:outline-none"
+                  placeholder="Confirm password"
+                  onChange={(event: ChangeEvent) => {
+                    setUserInfo({ ...userInfo, repassword: (event.target as HTMLInputElement).value });
+                  }}
+                />
+              </div>
+            </div>
+
             <Button
-              disabled={!userInfo.username || !userInfo.email || !userInfo.password}
+              disabled={!userInfo.username || !userInfo.email || !userInfo.password || !userInfo.repassword || userInfo.password !== userInfo.repassword}
               className={`text-md block w-full cursor-pointer rounded bg-sky-500 px-8 py-2 text-center font-bold text-white hover:bg-sky-400 focus:outline-none ${
-                !userInfo.username || !userInfo.email || !userInfo.password ? 'cursor-not-allowed' : 'cursor-pointer'
+                !userInfo.username || !userInfo.email || !userInfo.password || !userInfo.repassword || userInfo.password !== userInfo.repassword
+                  ? 'cursor-not-allowed'
+                  : 'cursor-pointer'
               }`}
               label="Continue"
               onClick={() => setStep(2)}

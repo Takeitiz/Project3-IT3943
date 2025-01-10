@@ -1,20 +1,15 @@
-// import { Dispatch } from '@reduxjs/toolkit';
-// import axios, { AxiosResponse } from 'axios';
 import countries, { LocalizedCountryNames } from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import { Dispatch } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { logout } from '../../features/auth/reducers/logout.reducer.ts';
-import { authApi } from '../../features/auth/services/auth.service.ts';
 import { api } from '../../store/api.ts';
-// import { filter } from 'lodash';
-// import millify from 'millify';
-// import { NavigateFunction } from 'react-router-dom';
-// import { toast } from 'react-toastify';
-// import { logout } from 'src/features/auth/reducers/logout.reducer';
-// import { authApi } from 'src/features/auth/services/auth.service';
-// import { IOrderDocument } from 'src/features/order/interfaces/order.interface';
-// import { api } from 'src/store/api';
+import { IOrderDocument } from '../../features/order/interfaces/order.interface.ts';
+import { filter } from 'lodash';
+import millify from 'millify';
+import { toast } from 'react-toastify';
+import axios, { AxiosResponse } from 'axios';
+
 
 countries.registerLocale(enLocale);
 
@@ -30,6 +25,11 @@ export const firstLetterUppercase = (str: string): string => {
 export const replaceSpacesWithDash = (title: string): string => {
   const lowercaseTitle: string = lowerCase(`${title}`);
   return lowercaseTitle.replace(/\/| /g, '-'); // replace / and space with -
+};
+
+export const replaceSpacesWithPlus = (title: string): string => {
+  const lowercaseTitle: string = lowerCase(`${title}`);
+  return lowercaseTitle.replace(/\/|/g, ''); // replace / and space with -
 };
 
 export const replaceDashWithSpaces = (title: string): string => {
@@ -121,120 +121,120 @@ export const applicationLogout = (dispatch: Dispatch, navigate: NavigateFunction
   navigate('/');
 };
 
-// export const isFetchBaseQueryError = (error: unknown): boolean => {
-//   return typeof error === 'object' && error !== null && 'status' in error && 'data' in error;
-// };
-//
-// export const orderTypes = (status: string, orders: IOrderDocument[]): number => {
-//   const orderList: IOrderDocument[] = filter(orders, (order: IOrderDocument) => lowerCase(order.status) === lowerCase(status));
-//   return orderList.length;
-// };
-//
-// export const sellerOrderList = (status: string, orders: IOrderDocument[]): IOrderDocument[] => {
-//   const orderList: IOrderDocument[] = filter(orders, (order: IOrderDocument) => lowerCase(order.status) === lowerCase(status));
-//   return orderList;
-// };
-//
-// export const degreeList = (): string[] => {
-//   return ['Associate', 'B.A.', 'B.Sc.', 'M.A.', 'M.B.A.', 'M.Sc.', 'J.D.', 'M.D.', 'Ph.D.', 'LLB', 'Certificate', 'Other'];
-// };
-//
-// export const languageLevel = (): string[] => {
-//   return ['Basic', 'Conversational', 'Fluent', 'Native'];
-// };
-//
-// export const yearsList = (maxOffset: number): string[] => {
-//   const years: string[] = [];
-//   const currentYear: number = new Date().getFullYear();
-//   for (let i = 0; i <= maxOffset; i++) {
-//     const year: number = currentYear - i;
-//     years.push(`${year}`);
-//   }
-//   return years;
-// };
-//
-// export const shortenLargeNumbers = (data: number | undefined): string => {
-//   if (data === undefined) {
-//     return '0';
-//   }
-//   return millify(data, { precision: 0 });
-// };
-//
-// export const rating = (num: number): number => {
-//   if (num) {
-//     return Math.round(num * 10) / 10;
-//   }
-//   return 0.0;
-// };
-//
-// export const showSuccessToast = (message: string): void => {
-//   toast.success(message, {
-//     position: 'bottom-right',
-//     autoClose: 3000,
-//     hideProgressBar: false,
-//     closeOnClick: true,
-//     pauseOnHover: false,
-//     draggable: false,
-//     progress: undefined,
-//     theme: 'colored'
-//   });
-// };
-//
-// export const showErrorToast = (message: string): void => {
-//   toast.error(message, {
-//     position: 'bottom-right',
-//     autoClose: 3000,
-//     hideProgressBar: false,
-//     closeOnClick: true,
-//     pauseOnHover: false,
-//     draggable: false,
-//     progress: undefined,
-//     theme: 'colored'
-//   });
-// };
-//
-// export const reactQuillUtils = () => {
-//   const modules = {
-//     toolbar: [
-//       ['bold', 'italic'],
-//       [{ list: 'ordered' }, { list: 'bullet' }]
-//     ]
-//   };
-//   const formats: string[] = ['bold', 'italic', 'list', 'bullet'];
-//   return { modules, formats };
-// };
-//
-// export const generateRandomNumber = (length: number): number => {
-//   return Math.floor(Math.random() * (9 * Math.pow(10, length - 1))) + Math.pow(10, length - 1);
-// };
-//
-// export const bytesToSize = (bytes: number): string => {
-//   const sizes: string[] = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-//   if (bytes === 0) {
-//     return 'n/a';
-//   }
-//   const i = parseInt(`${Math.floor(Math.log(bytes) / Math.log(1024))}`, 10);
-//   if (i === 0) {
-//     return `${bytes} ${sizes[i]}`;
-//   }
-//   return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
-// };
-//
-// export const getFileBlob = async (url: string): Promise<AxiosResponse> => {
-//   const response: AxiosResponse = await axios.get(url, { responseType: 'blob' });
-//   return response;
-// };
-//
-// export const downloadFile = (blobUrl: string, fileName: string): void => {
-//   const link: HTMLAnchorElement = document.createElement('a');
-//   link.href = blobUrl;
-//   link.setAttribute('download', `${fileName}`);
-//   // Append to html link element page
-//   document.body.appendChild(link);
-//   // Start download
-//   link.click();
-//   // Clean up and remove link
-//   if (link.parentNode) {
-//     link.parentNode.removeChild(link);
-//   }
-// };
+export const isFetchBaseQueryError = (error: unknown): boolean => {
+  return typeof error === 'object' && error !== null && 'status' in error && 'data' in error;
+};
+
+export const orderTypes = (status: string, orders: IOrderDocument[]): number => {
+  const orderList: IOrderDocument[] = filter(orders, (order: IOrderDocument) => lowerCase(order.status) === lowerCase(status));
+  return orderList.length;
+};
+
+export const sellerOrderList = (status: string, orders: IOrderDocument[]): IOrderDocument[] => {
+  const orderList: IOrderDocument[] = filter(orders, (order: IOrderDocument) => lowerCase(order.status) === lowerCase(status));
+  return orderList;
+};
+
+export const degreeList = (): string[] => {
+  return ['Associate', 'B.A.', 'B.Sc.', 'M.A.', 'M.B.A.', 'M.Sc.', 'J.D.', 'M.D.', 'Ph.D.', 'LLB', 'Certificate', 'Other'];
+};
+
+export const languageLevel = (): string[] => {
+  return ['Basic', 'Conversational', 'Fluent', 'Native'];
+};
+
+export const yearsList = (maxOffset: number): string[] => {
+  const years: string[] = [];
+  const currentYear: number = new Date().getFullYear();
+  for (let i = 0; i <= maxOffset; i++) {
+    const year: number = currentYear - i;
+    years.push(`${year}`);
+  }
+  return years;
+};
+
+export const shortenLargeNumbers = (data: number | undefined): string => {
+  if (data === undefined) {
+    return '0';
+  }
+  return millify(data, { precision: 0 });
+};
+
+export const rating = (num: number): number => {
+  if (num) {
+    return Math.round(num * 10) / 10;
+  }
+  return 0.0;
+};
+
+export const showSuccessToast = (message: string): void => {
+  toast.success(message, {
+    position: 'bottom-right',
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: false,
+    progress: undefined,
+    theme: 'colored'
+  });
+};
+
+export const showErrorToast = (message: string): void => {
+  toast.error(message, {
+    position: 'bottom-right',
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: false,
+    progress: undefined,
+    theme: 'colored'
+  });
+};
+
+export const reactQuillUtils = () => {
+  const modules = {
+    toolbar: [
+      ['bold', 'italic'],
+      [{ list: 'ordered' }, { list: 'bullet' }]
+    ]
+  };
+  const formats: string[] = ['bold', 'italic', 'list', 'bullet'];
+  return { modules, formats };
+};
+
+export const generateRandomNumber = (length: number): number => {
+  return Math.floor(Math.random() * (9 * Math.pow(10, length - 1))) + Math.pow(10, length - 1);
+};
+
+export const bytesToSize = (bytes: number): string => {
+  const sizes: string[] = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (bytes === 0) {
+    return 'n/a';
+  }
+  const i = parseInt(`${Math.floor(Math.log(bytes) / Math.log(1024))}`, 10);
+  if (i === 0) {
+    return `${bytes} ${sizes[i]}`;
+  }
+  return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
+};
+
+export const getFileBlob = async (url: string): Promise<AxiosResponse> => {
+  const response: AxiosResponse = await axios.get(url, { responseType: 'blob' });
+  return response;
+};
+
+export const downloadFile = (blobUrl: string, fileName: string): void => {
+  const link: HTMLAnchorElement = document.createElement('a');
+  link.href = blobUrl;
+  link.setAttribute('download', `${fileName}`);
+  // Append to html link element page
+  document.body.appendChild(link);
+  // Start download
+  link.click();
+  // Clean up and remove link
+  if (link.parentNode) {
+    link.parentNode.removeChild(link);
+  }
+};

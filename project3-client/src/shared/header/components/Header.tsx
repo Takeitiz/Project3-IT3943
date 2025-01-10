@@ -5,6 +5,9 @@ import { IButtonProps } from '../../shared.interface.ts';
 import LoginModal from '../../../features/auth/components/Login.tsx';
 import RegisterModal from '../../../features/auth/components/Register.tsx';
 import ForgotPasswordModal from '../../../features/auth/components/ForgotPassword.tsx';
+import { saveToLocalStorage } from '../../utils/utils.service.ts';
+import HeaderSideBar from './mobile/HeaderSideBar.tsx';
+import { FaBars, FaTimes } from 'react-icons/fa';
 
 const Button: LazyExoticComponent<FC<IButtonProps>> = lazy(() => import('src/shared/button/Button'));
 
@@ -14,7 +17,7 @@ const Header: FC<IHeader> = ({ navClass }): ReactElement => {
     register: false,
     forgotPassword: false
   });
-
+  const [openSidebar, setOpenSidebar] = useState<boolean>(false);
 
   return (
     <>
@@ -37,6 +40,9 @@ const Header: FC<IHeader> = ({ navClass }): ReactElement => {
           onToggle={() => setShowModal((item: IHeaderModalProps) => ({ ...item, login: true, forgotPassword: false }))}
         />
       )}
+      {openSidebar && (
+        <HeaderSideBar setShowLoginModal={setShowModal} setShowRegisterModal={setShowModal} setOpenSidebar={setOpenSidebar} />
+      )}
       <header>
         <nav className={navClass}>
           <div className="m-auto px-6 xl:container md:px-12 lg:px-6">
@@ -46,7 +52,11 @@ const Header: FC<IHeader> = ({ navClass }): ReactElement => {
                   Jobber
                 </Link>
                 <div className="peer-checked:hamburger relative z-20 -mr-6 block cursor-pointer p-6 lg:hidden">
-                  <Button className="m-auto h-0.5 w-5 rounded transition duration-300" label="label" />
+                  <Button
+                    className="m-auto h-0.5 w-5 rounded transition duration-300"
+                    onClick={() => setOpenSidebar(!openSidebar)}
+                    label={<>{openSidebar ? <FaTimes className="h-6 w-6 text-sky-500" /> : <FaBars className="h-6 w-6 text-sky-500" />}</>}
+                  />
                 </div>
               </div>
               <div
@@ -55,7 +65,12 @@ const Header: FC<IHeader> = ({ navClass }): ReactElement => {
                   <ul className="space-y-6 text-base font-medium tracking-wide lg:flex lg:space-y-0 lg:text-sm">
                     <li>
                       <div
-                        className="hover:text-primary dark:hover:text-primaryLight block transition md:px-4">
+                        onClick={() => {
+                          setShowModal((item: IHeaderModalProps) => ({ ...item, register: true }));
+                          saveToLocalStorage('becomeASeller', JSON.stringify(true));
+                        }}
+                        className="hover:text-primary dark:hover:text-primaryLight block transition md:px-4"
+                      >
                         <span>Become a Seller</span>
                       </div>
                     </li>

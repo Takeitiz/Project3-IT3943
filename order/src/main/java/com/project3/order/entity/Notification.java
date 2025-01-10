@@ -31,5 +31,5 @@ public class Notification {
 
     private String orderId = "";
 
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

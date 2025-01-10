@@ -1,14 +1,36 @@
 services:
+  redis:
+    container_name: redis_container
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning --appendonly yes  # Thêm appendonly để đảm bảo persistence
+    volumes:
+      - redis_data:/data  # Sử dụng named volume thay vì bind mount
+
+  redis-commander:
+    container_name: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    ports:
+      - '8082:8082'
+    environment:
+      - REDIS_HOSTS=local:redis_container:6379
+      - PORT=8082
+
   mongodb:
     image: mongo
     container_name: mongo_db
     ports:
       - 27017:27017
     volumes:
-      - mongo:/data
+      - mongodb_data:/data/db  # Data directory
+      - mongodb_config:/data/configdb  # Config directory
     environment:
       - MONGO_INITDB_ROOT_USERNAME=takeitiz
       - MONGO_INITDB_ROOT_PASSWORD=takeitiz
+    restart: always
 
   mongo-express:
     image: mongo-express
@@ -21,8 +43,10 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=takeitiz
       - ME_CONFIG_MONGODB_SERVER=mongodb
       - ME_CONFIG_MONGODB_URL=mongodb://takeitiz:takeitiz@mongodb:27017/
-      - ME_CONFIG_BASICAUTH_USERNAME=takeitiz    # Basic auth for mongo-express UI
+      - ME_CONFIG_BASICAUTH_USERNAME=takeitiz
       - ME_CONFIG_BASICAUTH_PASSWORD=takeitiz
+    depends_on:
+      - mongodb
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -33,8 +57,12 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "22181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
     networks:
       - microservices-net
+
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: ms_kafka
@@ -49,6 +77,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     networks:
       - microservices-net
 
@@ -64,6 +94,16 @@ networks:
     driver: bridge
 
 volumes:
-  postgres:
-  pgadmin:
-  mongo:
+  # Định nghĩa các named volumes
+  redis_data:
+    name: redis_data
+  mongodb_data:
+    name: mongodb_data
+  mongodb_config:
+    name: mongodb_config
+  zookeeper_data:
+    name: zookeeper_data
+  zookeeper_log:
+    name: zookeeper_log
+  kafka_data:
+    name: kafka_data

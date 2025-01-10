@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path="/api/review", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/api/v1/review", produces = {MediaType.APPLICATION_JSON_VALUE})
 @RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/")
+    @PostMapping("/create")
     public ResponseEntity<Review> createReview(@RequestBody Review review) {
         Review createdReview = reviewService.addReview(review);
         return ResponseEntity.status(HttpStatus.CREATED)

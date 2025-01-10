@@ -18,7 +18,7 @@ public class AuthProducer {
     public void sendUserBuyerTopic(AuthBuyerMessageDetailsDto authBuyerMessageDetailsDto) {
         Message<AuthBuyerMessageDetailsDto> message = MessageBuilder
                 .withPayload(authBuyerMessageDetailsDto)
-                .setHeader(KafkaHeaders.TOPIC, "user-buyer-topic")
+                .setHeader(KafkaHeaders.TOPIC, "user-buyer-auth-topic")
                 .build();
 
         kafkaTemplate1.send(message);

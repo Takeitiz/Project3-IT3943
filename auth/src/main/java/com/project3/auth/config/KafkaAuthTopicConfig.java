@@ -10,7 +10,7 @@ public class KafkaAuthTopicConfig {
 
     @Bean
     public NewTopic userBuyerTopic() {
-        return TopicBuilder.name("user-buyer-topic").build();
+        return TopicBuilder.name("user-buyer-auth-topic").build();
     }
 
     @Bean

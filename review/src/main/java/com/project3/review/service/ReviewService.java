@@ -22,9 +22,6 @@ public class ReviewService {
     private final MongoTemplate mongoTemplate;
 
     public Review addReview(Review review) {
-
-        review.setCreatedAt(LocalDateTime.now());
-
         Review savedReview = reviewRepository.save(review);
 
         ReviewMessageDetailsDto messageDetails = new ReviewMessageDetailsDto();
@@ -49,7 +46,7 @@ public class ReviewService {
 
     public List<Review> getReviewsBySellerId(String sellerId) {
         Query query = new Query(Criteria.where("sellerId").is(sellerId)
-                .and("reviewType").is("seller-review"));
+                .and("reviewType").is("buyer-review"));
         return mongoTemplate.find(query, Review.class);
     }
 }

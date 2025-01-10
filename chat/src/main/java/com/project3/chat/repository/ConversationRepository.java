@@ -9,10 +9,4 @@ import java.util.List;
 
 @Repository
 public interface ConversationRepository extends MongoRepository<Conversation, String> {
-
-    @Query("{ $or: [ " +
-            "{ 'senderUsername': ?0, 'receiverUsername': ?1 }, " +
-            "{ 'senderUsername': ?1, 'receiverUsername': ?0 } " +
-            "] }")
-    Conversation findConversationBetween(String senderUsername, String receiverUsername);
 }

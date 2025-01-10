@@ -29,6 +29,7 @@ export interface IConversationDocument {
 
 export interface IMessageDocument {
   _id?: string;
+  id?: string;
   conversationId?: string;
   body?: string;
   url?: string;

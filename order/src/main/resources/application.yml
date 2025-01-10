@@ -1,5 +1,5 @@
 server:
-  port: 9010
+  port: 4007
 spring:
   application:
     name: "order"
@@ -64,10 +64,15 @@ info:
 
 socket-server:
   host: localhost
-  port: 9011
+  port: 4008
 
 stripe:
   api:
     key: sk_test_51ObkrCDvfqPpWGktnUV0rJKnqjw5GWK0c7nqEYqNzwDZ44PHk96WvlRCmfOTQIAjtVBRpkf57CJaPjWrK1Hb0dcZ00N7IJ177P
+
+cloudinary:
+  cloud-name: "dwuvvf1tm"
+  api-key: "935826224131117"
+  api-secret: "k1E47y6AjRzzsyEgCpW0JjmAEX8"
 
 

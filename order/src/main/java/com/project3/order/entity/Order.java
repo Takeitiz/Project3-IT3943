@@ -1,5 +1,7 @@
 package com.project3.order.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -42,14 +44,15 @@ public class Order {
     private Boolean approved = false;
     private Boolean delivered = false;
     private Boolean cancelled = false;
-    private LocalDateTime approvedAt;
+    private String approvedAt;
     private String paymentIntent;
     private List<DeliveredWork> deliveredWork;
     private RequestExtension requestExtension;
-    private LocalDateTime dateOrdered;
+    private String dateOrdered;
     private Events events;
     private Review buyerReview;
     private Review sellerReview;
+    private Integer countExtension;
 
     @Data
     public static class Offer {
@@ -57,8 +60,8 @@ public class Order {
         private Double price;
         private String description;
         private Integer deliveryInDays;
-        private LocalDateTime oldDeliveryDate;
-        private LocalDateTime newDeliveryDate;
+        private String oldDeliveryDate;
+        private String newDeliveryDate;
         private Boolean accepted;
         private Boolean cancelled;
         private String reason = "";
@@ -75,27 +78,28 @@ public class Order {
 
     @Data
     public static class RequestExtension {
-        private LocalDateTime originalDate ;
-        private LocalDateTime newDate;
+        private String originalDate ;
+        private String newDate;
         private Integer days = 0;
         private String reason;
     }
 
     @Data
     public static class Events {
-        private LocalDateTime placeOrder;
-        private LocalDateTime requirements;
-        private LocalDateTime orderStarted;
-        private LocalDateTime deliveryDateUpdate;
-        private LocalDateTime orderDelivered;
-        private LocalDateTime buyerReview;
-        private LocalDateTime sellerReview;
+        private String placeOrder;
+        private String requirements;
+        private String orderStarted;
+        private String deliveryDateUpdate;
+        private String orderDelivered;
+        private String buyerReview;
+        private String sellerReview;
     }
 
     @Data
+    @Builder
     public static class Review {
         private Integer rating = 0;
         private String review = "";
-        private LocalDateTime created;
+        private String created;
     }
 }

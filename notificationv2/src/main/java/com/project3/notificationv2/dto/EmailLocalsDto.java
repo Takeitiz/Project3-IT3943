@@ -23,11 +23,11 @@ public class EmailLocalsDto {
     private String description;
     private String deliveryDays;
     private String orderId;
-    private LocalDateTime orderDue;
+    private String orderDue;
     private String requirements;
     private String orderUrl;
-    private LocalDateTime originalDate;
-    private LocalDateTime newDate;
+    private String originalDate;
+    private String newDate;
     private String reason;
     private String subject;
     private String header;
@@ -39,4 +39,5 @@ public class EmailLocalsDto {
     private String verifyLink;
     private String resetLink;
     private String otp;
+    private String declineReason;
 }

@@ -12,6 +12,6 @@ public class ReviewMessageDetailsDto {
     private String review;
     private Integer rating;
     private String orderId;
-    private LocalDateTime createdAt;
+    private String createdAt;
     private String type;
 }

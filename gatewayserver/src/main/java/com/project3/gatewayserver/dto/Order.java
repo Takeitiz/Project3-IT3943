@@ -21,13 +21,14 @@ public class Order {
     private String gigMainTitle;
     private String gigBasicTitle;
     private String gigBasicDescription;
-
+    private Integer countExtension;
     private String buyerId;
     private String buyerUsername;
     private String buyerEmail;
     private String buyerImage;
     private String status;
 
+    private String invoiceId;
     private String orderId;
     private Integer quantity;
     private Double price;
@@ -36,11 +37,11 @@ public class Order {
     private Boolean approved = false;
     private Boolean delivered = false;
     private Boolean cancelled = false;
-    private LocalDateTime approvedAt;
+    private String approvedAt;
     private String paymentIntent;
     private List<DeliveredWork> deliveredWork;
     private RequestExtension requestExtension;
-    private LocalDateTime dateOrdered;
+    private String dateOrdered;
     private Events events;
     private Review buyerReview;
     private Review sellerReview;
@@ -51,8 +52,8 @@ public class Order {
         private Double price;
         private String description;
         private Integer deliveryInDays;
-        private LocalDateTime oldDeliveryDate;
-        private LocalDateTime newDeliveryDate;
+        private String oldDeliveryDate;
+        private String newDeliveryDate;
         private Boolean accepted;
         private Boolean cancelled;
         private String reason = "";
@@ -77,20 +78,20 @@ public class Order {
 
     @Data
     public static class Events {
-        private LocalDateTime placeOrder;
-        private LocalDateTime requirements;
-        private LocalDateTime orderStarted;
-        private LocalDateTime deliveryDateUpdate;
-        private LocalDateTime orderDelivered;
-        private LocalDateTime buyerReview;
-        private LocalDateTime sellerReview;
+        private String placeOrder;
+        private String requirements;
+        private String orderStarted;
+        private String deliveryDateUpdate;
+        private String orderDelivered;
+        private String buyerReview;
+        private String sellerReview;
     }
 
     @Data
     public static class Review {
         private Integer rating = 0;
         private String review = "";
-        private LocalDateTime created;
+        private String created;
     }
 }
 

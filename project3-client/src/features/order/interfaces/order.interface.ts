@@ -96,6 +96,7 @@ export interface IExtendedDelivery {
   days: number;
   reason: string;
   deliveryDateUpdate?: string;
+  declineReason?: string;
 }
 
 export interface IDeliveredWork {
@@ -104,6 +105,7 @@ export interface IDeliveredWork {
   fileType: string;
   fileSize: number;
   fileName: string;
+  orderDelivered: Date;
 }
 
 export interface IOrderEvents {
@@ -194,6 +196,7 @@ export interface IOrderMessage {
 
 export interface IOrderNotifcation {
   _id?: string;
+  id?: string;
   userTo: string;
   senderUsername: string;
   senderPicture: string;

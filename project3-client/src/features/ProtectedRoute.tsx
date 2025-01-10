@@ -19,8 +19,8 @@ const ProtectedRoute: FC<IProtectedRouteProps> = ({ children }): ReactElement =>
   const [tokenIsValid, setTokenIsValid] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const navigate: NavigateFunction = useNavigate();
-  // @ts-ignore
-  const { data, isError } = useCheckCurrentUserQuery();
+
+  const { data, isError } = useCheckCurrentUserQuery(authUser.username!, { skip: authUser.id === null });
 
   const checkUser = useCallback(async () => {
     if (data && data.user) {

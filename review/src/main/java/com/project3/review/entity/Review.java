@@ -28,5 +28,5 @@ public class Review {
     private String country;
     private String reviewType;
     private int rating;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

@@ -20,6 +20,6 @@ public class KafkaOrderTopicConfig {
 
     @Bean
     public NewTopic userBuyerTopic() {
-        return TopicBuilder.name("user-buyer-topic").build();
+        return TopicBuilder.name("user-buyer-gig-topic").build();
     }
 }

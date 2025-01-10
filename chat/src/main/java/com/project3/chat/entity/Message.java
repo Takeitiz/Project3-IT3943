@@ -1,6 +1,9 @@
 package com.project3.chat.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,21 +12,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "message")
+@Builder
 public class Message {
-
     @Id
     private String id;
-
     @Indexed
     private String conversationId;
-
     @Indexed
     private String senderUsername;
-
     @Indexed
     private String receiverUsername;
-
     private String senderPicture;
     private String receiverPicture;
     private String body = "";

@@ -7,6 +7,11 @@ import { api } from './api.ts';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from '../features/auth/reducers/auth.reducer.ts';
 import logoutReducer from '../features/auth/reducers/logout.reducer.ts';
+import buyerReducer from '../features/buyer/reducers/buyer.reducer.ts';
+import sellerReducer from '../features/seller/reducers/seller.reducer.ts';
+import headerReducer from '../shared/header/reducers/header.reducer.ts';
+import categoryReducer from '../shared/header/reducers/category.reducer.ts';
+import notificationReducer from '../shared/header/reducers/notification.reducer.ts';
 
 const persistConfig = {
   key: 'root',
@@ -18,11 +23,11 @@ export const combineReducer = combineReducers({
   [api.reducerPath]: api.reducer,
   authUser: authReducer,
   logout: logoutReducer,
-  // buyer: buyerReducer,
-  // seller: sellerReducer,
-  // header: headerReducer,
-  // showCategoryContainer: categoryReducer,
-  // notification: notificationReducer
+  buyer: buyerReducer,
+  seller: sellerReducer,
+  header: headerReducer,
+  showCategoryContainer: categoryReducer,
+  notification: notificationReducer
 });
 
 export const rootReducers: Reducer<RootState> = (state, action) => {

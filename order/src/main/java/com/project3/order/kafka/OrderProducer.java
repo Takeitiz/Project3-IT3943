@@ -35,7 +35,7 @@ public class OrderProducer {
     public void sendUserBuyerTopic(OrderMessageDto orderMessageDto) {
         Message<OrderMessageDto> message = MessageBuilder
                 .withPayload(orderMessageDto)
-                .setHeader(KafkaHeaders.TOPIC, "user-buyer-topic")
+                .setHeader(KafkaHeaders.TOPIC, "user-buyer-gig-topic")
                 .build();
 
         kafkaTemplate.send(message);

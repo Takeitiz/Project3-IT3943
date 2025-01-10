@@ -65,6 +65,7 @@ public class EmailConsumer {
                 .message(orderMessageDto.getMessage())
                 .serviceFee(orderMessageDto.getServiceFee())
                 .total(orderMessageDto.getTotal())
+                .declineReason(orderMessageDto.getDeclineReason())
                 .build();
 
         if (orderMessageDto.getTemplateName().equals("order-placed.html")) {

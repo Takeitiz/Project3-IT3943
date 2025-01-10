@@ -1,5 +1,6 @@
 export interface IBuyerDocument {
   _id?: string;
+  id?: string;
   username?: string;
   email?: string;
   profilePicture?: string;

@@ -27,7 +27,7 @@ public class Seller {
     private String id;
 
     @NotBlank(message = "Fullname is required")
-    private String fullname;
+    private String fullName;
 
     @Indexed
     private String username;

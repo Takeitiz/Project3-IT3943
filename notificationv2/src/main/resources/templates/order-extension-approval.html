@@ -56,7 +56,9 @@
                                             style="font: 16px/22px 'Helvetica Neue', Arial, 'sans-serif'; text-align: left; color: #555555; padding: 10px 40px 0 40px;">
                                             <p>Hi <span th:text="${sellerUsername}"></span>,</p>
                                             <p>The order extension request sent to <span style="font-weight: bold;" th:text="${buyerUsername}"></span> was <span th:text="${type}"></span>.</p>
+
                                             <p th:text="${message}"></p>
+                                            <p th:if="${declineReason != null}" th:text="'Reason for decline: ' + ${declineReason}"></p>
 
                                             <p>
                                                 Thanks,<br />

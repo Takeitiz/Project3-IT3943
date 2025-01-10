@@ -1,37 +1,55 @@
 package com.project3.chat.controller;
 
-import com.project3.chat.dto.MessageDto;
+import com.project3.chat.dto.*;
 import com.project3.chat.entity.Conversation;
 import com.project3.chat.entity.Message;
-import com.project3.chat.service.ChatService;
+import com.project3.chat.service.CloudinaryService;
 import com.project3.chat.service.ConversationService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping(path="/api/message", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/api/v1/message", produces = {MediaType.APPLICATION_JSON_VALUE})
 @RequiredArgsConstructor
 public class ChatController {
 
     private final ConversationService conversationService;
+    private final CloudinaryService cloudinaryService;
 
     @PostMapping("/")
-    public ResponseEntity<Message> createMessage(@Valid @RequestBody MessageDto messageDto) {
+    public ResponseEntity<?> createMessage(@RequestBody MessageDto messageDto) {
 
-       /*
-            Todo: Handle file upload
-        */
+        String file = messageDto.getFile();
+        String randomCharacters = generateRandomHexToken(20);
+        String fileType = messageDto.getFileType();
+
+        if (StringUtils.hasText(file)) {
+            String fileName = fileType.equals("zip")
+                    ? randomCharacters + ".zip"
+                    : randomCharacters;
+            Map uploadResult = cloudinaryService.upload(file, fileName, null, null);
+            if (uploadResult.get("public_id") == null) {
+                ResponseEntity.badRequest().body("File upload error. Try again.', 'Create message() method");
+            }
+            file = uploadResult.get("secure_url").toString();
+        }
 
         Message message = new Message();
         message.setConversationId(messageDto.getConversationId());
         message.setBody(messageDto.getBody());
+        message.setFile(file);
+        message.setFileType(fileType);
+        message.setFileSize(messageDto.getFileSize());
+        message.setFileName(messageDto.getFileName());
         message.setGigId(messageDto.getGigId());
         message.setBuyerId(messageDto.getBuyerId());
         message.setSellerId(messageDto.getSellerId());
@@ -39,69 +57,73 @@ public class ChatController {
         message.setReceiverUsername(messageDto.getReceiverUsername());
         message.setSenderPicture(messageDto.getSenderPicture());
         message.setReceiverPicture(messageDto.getReceiverPicture());
-        message.setRead(messageDto.getIsRead());
-        message.setHasOffer(messageDto.getHasOffer());
+        message.setRead(messageDto.isRead());
+        message.setHasOffer(messageDto.isHasOffer());
         message.setOffer(messageDto.getOffer());
 
-        // Todo: Add set file's stuffs
-
         if (!messageDto.getHasConversationId()) {
-            Conversation conversation = new Conversation(messageDto.getConversationId(), messageDto.getSenderUsername(), messageDto.getReceiverUsername());
-            conversationService.createConversation(conversation);
+            conversationService.createConversation(messageDto.getConversationId(), messageDto.getSenderUsername(), messageDto.getReceiverUsername());
         }
 
         Message savedMessage = conversationService.addMessage(message);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(savedMessage);
+                .body(new MessageResponseDto("Message added", messageDto.getConversationId(), savedMessage));
     }
 
     @PutMapping("/offer")
-    public ResponseEntity<Message> updateCustomOffer(@RequestParam String messageId, @RequestParam String type) {
-        Message message = conversationService.updateOffer(messageId, type);
+    public ResponseEntity<?> updateCustomOffer(@RequestBody OfferMessageDto offerMessageDto) {
+        Message message = conversationService.updateOffer(offerMessageDto.getMessageId(), offerMessageDto.getType());
         return ResponseEntity.status(HttpStatus.OK)
-                .body(message);
+                .body(new SingleMessageResponseDto("Message updated", message));
     }
 
     @PutMapping("/mark-as-read")
-    public ResponseEntity<Message> markMessagesAsRead(@RequestParam String messageId) {
-        Message message = conversationService.markMessageAsRead(messageId);
+    public ResponseEntity<?> markMessagesAsRead(@RequestBody MarkSingleMessageDto markSingleMessageDto) {
+        Message message = conversationService.markMessageAsRead(markSingleMessageDto.getMessageId());
         return ResponseEntity.status(HttpStatus.OK)
-                .body(message);
+                .body(new SingleMessageResponseDto("Message marked as read", message));
     }
 
 
     @PutMapping("/mark-multiple-as-read")
-    public ResponseEntity<Message> markMultipleMessagesAsRead(@RequestParam String messageId, @RequestParam String senderUsername, @RequestParam String receiverUsername) {
-        Message message = conversationService.markManyMessagesAsRead(receiverUsername, senderUsername, messageId);
+    public ResponseEntity<?> markMultipleMessagesAsRead(@RequestBody MarkMultipleMessageDto markMultipleMessageDto) {
+        Message message = conversationService.markManyMessagesAsRead(markMultipleMessageDto.getReceiverUsername(), markMultipleMessageDto.getSenderUsername(), markMultipleMessageDto.getMessageId());
         return ResponseEntity.status(HttpStatus.OK)
-                .body(message);
+                .body(new SingleMessageResponseDto("Messages marked as read", message));
     }
 
     @GetMapping("/conversation/{senderUsername}/{receiverUsername}")
-    public ResponseEntity<Conversation> getConversation(@PathVariable String senderUsername, @PathVariable String receiverUsername) {
-        Conversation conversation = conversationService.getConversation(senderUsername, receiverUsername);
+    public ResponseEntity<?> getConversation(@PathVariable String senderUsername, @PathVariable String receiverUsername) {
+        List<Conversation> conversations = conversationService.getConversation(senderUsername, receiverUsername);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(conversation);
-    }
-
-    @GetMapping("/conversation/{username}")
-    public ResponseEntity<List<Message>> getConversationListsByUsername(@PathVariable String username) {
-        List<Message> messages = conversationService.getUserConversationList(username);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(messages);
+                .body(new ConversationResponseDto("Chat conversation", conversations));
     }
 
     @GetMapping("/{senderUsername}/{receiverUsername}")
-    public ResponseEntity<List<Message>> getMessagesBySenderNameAndReceiverName(@PathVariable String senderUsername, @PathVariable String receiverUsername) {
+    public ResponseEntity<?> getMessagesBySenderNameAndReceiverName(@PathVariable String senderUsername, @PathVariable String receiverUsername) {
         List<Message> messages = conversationService.getMessages(senderUsername, receiverUsername);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(messages);
+                .body(new ListMessagesResponseDto("Chat messages", messages));
+    }
+
+    @GetMapping("/conversations/{username}")
+    public ResponseEntity<?> getConversationListsByUsername(@PathVariable String username) {
+        List<Message> messages = conversationService.getUserConversationList(username);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ConversationListDto("Conversation list", messages));
     }
 
     @GetMapping("/{conversationId}")
-    public ResponseEntity<List<Message>> getMessagesByConversationId(@PathVariable String conversationId) {
+    public ResponseEntity<?> getMessagesByConversationId(@PathVariable String conversationId) {
         List<Message> messages = conversationService.getUserMessages(conversationId);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(messages);
+                .body(new ListMessagesResponseDto("Chat messages", messages));
+    }
+
+    private String generateRandomHexToken(int bytes) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] token = new byte[bytes];
+        secureRandom.nextBytes(token);
+        return HexFormat.of().formatHex(token);
     }
 }

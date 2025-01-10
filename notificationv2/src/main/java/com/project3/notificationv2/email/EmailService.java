@@ -61,6 +61,7 @@ public class EmailService {
         context.setVariable("verifyLink", emailLocalsDto.getVerifyLink());
         context.setVariable("resetLink", emailLocalsDto.getResetLink());
         context.setVariable("otp", emailLocalsDto.getOtp());
+        context.setVariable("declineReason", emailLocalsDto.getDeclineReason());
 
         try {
             String htmlTemplate = templateEngine.process(templateName, context);

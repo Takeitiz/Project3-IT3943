@@ -35,15 +35,16 @@ public class OrderMessageDto {
     private String deliveryDays;
     private String orderId;
     private String invoiceId;
-    private LocalDateTime orderDue;
+    private String orderDue;
     private String requirements;
     private String orderUrl;
-    private LocalDateTime originalDate;
-    private LocalDateTime newDate;
+    private String originalDate;
+    private String newDate;
     private String reason;
     private String subject;
     private String header;
     private Double total;
     private String message;
     private Double serviceFee;
+    private String declineReason;
 }

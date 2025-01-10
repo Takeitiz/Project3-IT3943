@@ -9,4 +9,5 @@ public class DeliveredWorkDto {
     String fileType;
     String fileSize;
     String fileName;
+    String orderDelivered;
 }

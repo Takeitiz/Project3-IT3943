@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 4004
 spring:
   application:
     name: "gigs"
@@ -14,6 +14,25 @@ spring:
       password: takeitiz
       authentication-database: admin
       auto-index-creation: true
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: updateGigCountMessageDto:com.project3.gigs.dto.UpdateGigCountMessageDto
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: userGroup, userGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: seedMessageDto:com.project3.gigs.dto.SeedMessageDto,reviewMessageDetailsDto:com.project3.gigs.dto.ReviewMessageDetailsDto
 
 management:
   endpoints:

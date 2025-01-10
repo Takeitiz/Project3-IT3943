@@ -1,5 +1,3 @@
-// import { SerializedError } from '@reduxjs/toolkit';
-// import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { ChangeEvent, CSSProperties, Dispatch, KeyboardEvent, ReactNode, SetStateAction } from 'react';
 import {
   IAuthDocument,
@@ -10,23 +8,27 @@ import {
 } from '../features/auth/interfaces/auth.interface.ts';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { SerializedError } from '@reduxjs/toolkit';
-// import { IAuthDocument, IAuthResponse, IResetPassword, ISignInPayload, ISignUpPayload } from 'src/features/auth/interfaces/auth.interface';
-// import { IBuyerDocument } from 'src/features/buyer/interfaces/buyer.interface';
-// import { IConversationDocument, IMessageDocument } from 'src/features/chat/interfaces/chat.interface';
-// import { ICreateGig, ISellerGig } from 'src/features/gigs/interfaces/gig.interface';
-// import { IOrderDocument, IOrderNotifcation } from 'src/features/order/interfaces/order.interface';
-// import { IReviewDocument } from 'src/features/order/interfaces/review.interface';
-// import { IEducation, IExperience, ILanguage, IPersonalInfoData, ISellerDocument } from 'src/features/sellers/interfaces/seller.interface';
+import { IBuyerDocument } from '../features/buyer/interfaces/buyer.interface.ts';
+import {
+  IEducation,
+  IExperience, ILanguage,
+  IPersonalInfoData,
+  ISellerDocument
+} from '../features/seller/interfaces/seller.interface.ts';
+import { ICreateGig, ISellerGig } from '../features/gigs/interfaces/gig.interface.ts';
+import { IConversationDocument, IMessageDocument } from '../features/chat/interfaces/chat.interface.ts';
+import { IOrderDocument, IOrderNotifcation } from '../features/order/interfaces/order.interface.ts';
+import { IReviewDocument } from '../features/order/interfaces/review.interface.ts';
 
 export type validationErrorsType =
   | ISignInPayload
   | ISignUpPayload
   | IResetPassword
-  // | ICreateGig
-  // | IPersonalInfoData
-  // | IExperience
-  // | IEducation
-  // | ILanguage;
+  | ICreateGig
+  | IPersonalInfoData
+  | IExperience
+  | IEducation
+  | ILanguage;
 
 export interface IQueryResponse {
   data: IAuthResponse;
@@ -37,24 +39,24 @@ export interface IResponse {
   message?: string;
   token?: string;
   user?: IAuthDocument;
-  // buyer?: IBuyerDocument;
-  // seller?: ISellerDocument;
-  // sellers?: ISellerDocument[];
-  // gig?: ISellerGig;
-  // gigs?: ISellerGig[];
+  buyer?: IBuyerDocument;
+  seller?: ISellerDocument;
+  sellers?: ISellerDocument[];
+  gig?: ISellerGig;
+  gigs?: ISellerGig[];
   total?: number;
   sortItems?: string[];
-  // conversations?: IConversationDocument[] | IMessageDocument[];
-  // messages?: IMessageDocument[];
-  // messageData?: IMessageDocument;
+  conversations?: IConversationDocument[] | IMessageDocument[];
+  messages?: IMessageDocument[];
+  messageData?: IMessageDocument;
   conversationId?: string;
   clientSecret?: string;
   paymentIntentId?: string;
-  // order?: IOrderDocument;
-  // orders?: IOrderDocument[];
-  // review?: IReviewDocument;
-  // reviews?: IReviewDocument[];
-  // notifications?: IOrderNotifcation[];
+  order?: IOrderDocument;
+  orders?: IOrderDocument[];
+  review?: IReviewDocument;
+  reviews?: IReviewDocument[];
+  notifications?: IOrderNotifcation[];
   browserName?: string;
   deviceType?: string;
 }

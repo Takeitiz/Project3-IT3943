@@ -8,7 +8,7 @@ import lombok.Data;
 public class ChangePasswordDto {
 
     @NotBlank(message = "Password is a required field")
-    @Size(min = 4, max = 8, message = "Invalid password")
+    @Size(min = 4, max = 12, message = "Invalid password")
     private String currentPassword;
 
     @NotBlank(message = "Password is a required field")

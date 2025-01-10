@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 4005
 spring:
   application:
     name: "chat"
@@ -48,6 +48,11 @@ info:
 
 socket-server:
   host: localhost
-  port: 9001
+  port: 4006
+
+cloudinary:
+  cloud-name: "dwuvvf1tm"
+  api-key: "935826224131117"
+  api-secret: "k1E47y6AjRzzsyEgCpW0JjmAEX8"
 
 
